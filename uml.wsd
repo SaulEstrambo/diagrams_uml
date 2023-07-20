@@ -1,6 +1,4 @@
 @startuml
-'!theme bluegray
-'skinparam Style strictuml 
 
 box Localhost
 participant ClienteTest
