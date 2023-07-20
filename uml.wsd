@@ -1,52 +1,23 @@
-@startuml sniffer UML
-skinparam Style strictuml 
-box "Client"
-participant GRAVITON
+@startuml
+'!theme bluegray
+'skinparam Style strictuml 
+
+box Localhost
+participant ClienteTest
+participant BolsaTest
+
+activate ClienteTest
+ClienteTest -> BolsaTest : Request FIX
+deactivate ClienteTest
+
+hnote over ClienteTest
+Tasa: 100'000 mensajes
+        65 us por msg
+endhnote
+
+activate BolsaTest
+ClienteTest <- BolsaTest : Response FIX
+
+deactivate BolsaTest
 end box
-
-
-
-box "Finamex"
-participant SWITCH
-participant ISIS
-participant RabbitMQ
-end box
-
-box "Stock Exchange"
-participant BMV
-end box
-
-GRAVITON -[#orange]> SWITCH : Request Message
-activate GRAVITON
-
-SWITCH -[#green]> GRAVITON: Response
-deactivate GRAVITON
-
-SWITCH -[#orange]> BMV : Request Message
-activate BMV
-BMV -[#green]> SWITCH : Response Message
-deactivate BMV
-
-== Sniffer ==
-
-SWITCH -[#orange]> ISIS : Validation Message
-activate ISIS
-
-note right  
-Only no-compliant validation
-Close port switch
-Stop trade client
-end note
-ISIS -[#orange]> ISIS : Response validation
-
-ISIS -[#red]> SWITCH : Close Port
-ISIS -[#red]> GRAVITON : Stop Trade
-
-== Sentinel ==
-
-SWITCH -[#orange]> ISIS : Validation Message and Save Log
-SWITCH -[#green]> ISIS : Response
-ISIS -[#orange]> RabbitMQ : Request
-ISIS-[#green]> RabbitMQ : Response
-deactivate ISIS
 @enduml
