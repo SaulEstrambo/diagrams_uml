@@ -1,21 +1,31 @@
 @startuml
 
 box Localhost
+
 participant ClienteTest
+
 participant BolsaTest
 
 activate ClienteTest
+
 ClienteTest -> BolsaTest : Request FIX
+
 deactivate ClienteTest
 
 hnote over ClienteTest
+
 Tasa: 100'000 mensajes
+
         65 us por msg
+
 endhnote
 
 activate BolsaTest
+
 ClienteTest <- BolsaTest : Response FIX
 
 deactivate BolsaTest
+
 end box
+
 @enduml
