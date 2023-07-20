@@ -1,0 +1,46 @@
+@startuml activity Sniffer
+'!theme cerulean
+
+(*) --> "Iniciaice" as ini
+note right: Active Process \n RMG Sniffer
+-->"GRVITON \nconnect"
+--> "Send \nRequest"
+-->===Sniffer===
+-->[Request] "Aceptor"
+-->===EndSniffer===
+
+===Sniffer=== --> "Log ISIS"
+partition Validations {
+    if "Type" then
+        -->[New] "- Station \n- Price \n- Volume \n- Marketbility" as vs
+    else
+        -->[Replace] "- Price \n- Volume" as vsr
+    endif
+    
+    vs --> === BlockPort ===
+    vsr --> === BlockPort ===
+    
+    --> if "is Valid?" then
+        -->[True] ===EndSniffer===
+    else
+        -->[False] "Block port \nand response" as byr
+    endif
+
+}
+
+===EndSniffer=== -->[Send BMV] "BMV"
+
+--> === ResponseCliesnt ===
+byr --> === ResponseCliesnt ===
+--> "Add \nSequence"
+-->[Response Message] "Response \nGRAVITON"
+
+--> (*)
+note left
+    End Process
+    Send response 
+    to client
+end note
+
+
+@enduml
