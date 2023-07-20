@@ -1,46 +1,52 @@
-@startuml activity Sniffer
-'!theme cerulean
+@startuml sniffer UML
+skinparam Style strictuml 
+box "Client"
+participant GRAVITON
+end box
 
-(*) --> "Iniciaice" as ini
-note right: Active Process \n RMG Sniffer
--->"GRVITON \nconnect"
---> "Send \nRequest"
--->===Sniffer===
--->[Request] "Aceptor"
--->===EndSniffer===
 
-===Sniffer=== --> "Log ISIS"
-partition Validations {
-    if "Type" then
-        -->[New] "- Station \n- Price \n- Volume \n- Marketbility" as vs
-    else
-        -->[Replace] "- Price \n- Volume" as vsr
-    endif
-    
-    vs --> === BlockPort ===
-    vsr --> === BlockPort ===
-    
-    --> if "is Valid?" then
-        -->[True] ===EndSniffer===
-    else
-        -->[False] "Block port \nand response" as byr
-    endif
 
-}
+box "Finamex"
+participant SWITCH
+participant ISIS
+participant RabbitMQ
+end box
 
-===EndSniffer=== -->[Send BMV] "BMV"
+box "Stock Exchange"
+participant BMV
+end box
 
---> === ResponseCliesnt ===
-byr --> === ResponseCliesnt ===
---> "Add \nSequence"
--->[Response Message] "Response \nGRAVITON"
+GRAVITON -[#orange]> SWITCH : Request Message
+activate GRAVITON
 
---> (*)
-note left
-    End Process
-    Send response 
-    to client
+SWITCH -[#green]> GRAVITON: Response
+deactivate GRAVITON
+
+SWITCH -[#orange]> BMV : Request Message
+activate BMV
+BMV -[#green]> SWITCH : Response Message
+deactivate BMV
+
+== Sniffer ==
+
+SWITCH -[#orange]> ISIS : Validation Message
+activate ISIS
+
+note right  
+Only no-compliant validation
+Close port switch
+Stop trade client
 end note
+ISIS -[#orange]> ISIS : Response validation
 
+ISIS -[#red]> SWITCH : Close Port
+ISIS -[#red]> GRAVITON : Stop Trade
 
+== Sentinel ==
+
+SWITCH -[#orange]> ISIS : Validation Message and Save Log
+SWITCH -[#green]> ISIS : Response
+ISIS -[#orange]> RabbitMQ : Request
+ISIS-[#green]> RabbitMQ : Response
+deactivate ISIS
 @enduml
